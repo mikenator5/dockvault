@@ -6,6 +6,7 @@ import (
 	"dockVault/internal/pkg/dockerHelpers"
 	"flag"
 	"fmt"
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 	"os"
 )
 
@@ -57,11 +58,19 @@ func upload(imageId string, storage string, blobName string) error {
 		if err != nil {
 			return err
 		}
-		_, err = client.UploadBuffer(context.TODO(), containerName, blobName, compressedImage.Bytes(), nil)
+		size := int64(compressedImage.Len())
+		_, err = client.UploadBuffer(context.TODO(), containerName, blobName, compressedImage.Bytes(), &azblob.UploadBufferOptions{
+			BlockSize:   int64(1024),
+			Concurrency: uint16(3),
+			Progress: func(bytesTransferred int64) {
+				percentage := int((float64(bytesTransferred) / float64(size)) * 100)
+				printProgressBar(percentage)
+			},
+		})
 		if err != nil {
 			return err
 		}
-		fmt.Printf("Successfully saved %s to %s\n", imageId, account)
+		fmt.Printf("\nSuccessfully saved %s\n", imageId)
 	}
 	return nil
 }
@@ -76,4 +85,19 @@ func load() {
 
 func printUsage() {
 	fmt.Println("Usage: dockerHelpers <upload | list | load>")
+}
+
+func printProgressBar(percentage int) {
+	barLength := 50
+	numBars := int(float64(barLength) * (float64(percentage) / 100))
+	bar := "[" + repeatStr("=", numBars) + repeatStr(" ", barLength-numBars) + "]"
+	fmt.Printf("\r%s %d%%", bar, percentage)
+}
+
+func repeatStr(s string, count int) string {
+	result := ""
+	for i := 0; i < count; i++ {
+		result += s
+	}
+	return result
 }
