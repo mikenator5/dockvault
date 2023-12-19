@@ -21,7 +21,7 @@ func NewVault() {
 	case "list":
 		handleList()
 	case "load":
-		fmt.Println("loading image...")
+		handleLoad()
 	default:
 		output.PrintUsage()
 	}
@@ -57,6 +57,23 @@ func handleList() {
 	err = storage.List()
 	if err != nil {
 		fmt.Println("Failed to list objects in " + storage.GetContainerName())
+	}
+}
+
+func handleLoad() {
+	loadCmd := flag.NewFlagSet("load", flag.ExitOnError)
+	loadBlobName := loadCmd.String("name", "", "Name of the blob")
+	loadStorage := loadCmd.String("storage", "", "<az | s3>")
+	loadCmd.Parse(os.Args[2:])
+	storage, err := getStorage(*loadStorage)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	err = storage.Load(*loadBlobName)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 }
 

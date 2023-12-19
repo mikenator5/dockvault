@@ -43,3 +43,12 @@ func SaveImageInMemory(imageId string) (*bytes.Buffer, error) {
 
 	return &compressedBuffer, nil
 }
+
+func LoadImageFromBuffer(buffer *bytes.Buffer) error {
+	ctx, cli, err := Initialize()
+	_, err = cli.ImageLoad(ctx, buffer, false)
+	if err != nil {
+		return err
+	}
+	return nil
+}

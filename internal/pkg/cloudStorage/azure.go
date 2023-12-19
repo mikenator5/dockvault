@@ -1,6 +1,7 @@
 package cloudStorage
 
 import (
+	"bytes"
 	"context"
 	"dockVault/internal/pkg/dockerHelpers"
 	"dockVault/internal/pkg/output"
@@ -79,6 +80,27 @@ func (az *Azure) List() error {
 	return nil
 }
 
-func (az *Azure) Load() {
+func (az *Azure) Load(blobName string) error {
+	fmt.Println("Downloading " + blobName)
+	get, err := az.Client.DownloadStream(context.TODO(), az.GetContainerName(), blobName, nil)
+	if err != nil {
+		return err
+	}
+	data := bytes.Buffer{}
+	retryReader := get.NewRetryReader(context.TODO(), nil)
+	_, err = data.ReadFrom(retryReader)
+	if err != nil {
+		return err
+	}
+	err = retryReader.Close()
+	if err != nil {
+		return err
+	}
 
+	err = dockerHelpers.LoadImageFromBuffer(&data)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("Successfully loaded %s\n", blobName)
+	return nil
 }
