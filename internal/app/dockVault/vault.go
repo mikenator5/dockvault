@@ -15,6 +15,10 @@ const (
 )
 
 func NewVault() {
+	if len(os.Args) <= 1 {
+		output.PrintUsage()
+		return
+	}
 	switch os.Args[1] {
 	case "upload":
 		handleUpload()
@@ -88,7 +92,14 @@ func getStorage(storage string) (cloudStorage.Storage, error) {
 			return nil, err
 		}
 		return &az, err
+	case S3Storage:
+		bucket := os.Getenv("AWS_BUCKET")
+		s3, err := cloudStorage.NewS3(bucket, "")
+		if err != nil {
+			return nil, err
+		}
+		return &s3, nil
 	default:
-		return nil, errors.New("unknown command provided")
+		return nil, errors.New("no storage provided.\nUsage: list --storage <az | s3>")
 	}
 }
