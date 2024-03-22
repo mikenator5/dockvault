@@ -14,17 +14,17 @@ type Docker struct {
 	cli *client.Client
 }
 
-func NewDocker() (*Docker, error) {
+func NewDocker() (Docker, error) {
 	d := Docker{}
 	d.ctx = context.Background()
 	var err error
 	if d.cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation()); err != nil {
-		return nil, err
+		return Docker{}, err
 	}
-	return &d, nil
+	return d, nil
 }
 
-func (d *Docker) SaveImageInMemory(imageId string) (*bytes.Buffer, error) {
+func (d Docker) SaveImageInMemory(imageId string) (*bytes.Buffer, error) {
 	// Save docker image to buffer
 	var tarballBuffer bytes.Buffer
 	saveResponse, err := d.cli.ImageSave(d.ctx, []string{imageId})
@@ -49,7 +49,7 @@ func (d *Docker) SaveImageInMemory(imageId string) (*bytes.Buffer, error) {
 	return &compressedBuffer, nil
 }
 
-func (d *Docker) LoadImageFromBuffer(buffer *bytes.Buffer) error {
+func (d Docker) LoadImageFromBuffer(buffer *bytes.Buffer) error {
 	_, err := d.cli.ImageLoad(d.ctx, buffer, false)
 	if err != nil {
 		return err
