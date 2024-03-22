@@ -18,8 +18,8 @@ type AWS struct {
 }
 
 type Azure struct {
-	Account   string `json:"account"`
-	Container string `json:"container"`
+	StorageAccount string `json:"storageAccount"`
+	Container      string `json:"container"`
 }
 
 func writeConfig(cfg Config, filePath string) error {

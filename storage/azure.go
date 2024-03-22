@@ -23,7 +23,8 @@ func NewAzureWithAD(cfg helpers.Config, d helpers.Docker) (Azure, error) {
 		return Azure{}, err
 	}
 
-	client, err := azblob.NewClient(cfg.Azure.Account, cred, nil)
+	serviceUrl := fmt.Sprintf("https://%s.blob.core.windows.net/", cfg.Azure.StorageAccount)
+	client, err := azblob.NewClient(serviceUrl, cred, nil)
 	if err != nil {
 		return Azure{}, err
 	}
