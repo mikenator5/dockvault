@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"dockVault/helpers"
-	"dockVault/internal/pkg/output"
+	"dockVault/output"
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"

@@ -2,8 +2,9 @@ package main
 
 import (
 	"dockVault/helpers"
-	"dockVault/internal/pkg/output"
+	"dockVault/output"
 	"dockVault/storage"
+
 	"errors"
 	"flag"
 	"fmt"
