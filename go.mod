@@ -10,7 +10,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/s3/manager v1.16.6
 	github.com/aws/aws-sdk-go-v2/service/s3 v1.51.1
 	github.com/docker/docker v24.0.7+incompatible
-	github.com/joho/godotenv v1.5.1
 )
 
 require (
