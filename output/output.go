@@ -1,10 +1,8 @@
 package output
 
-import "fmt"
-
-func PrintUsage() {
-	fmt.Println("Usage: dockerHelpers <upload | list | load>")
-}
+import (
+	"fmt"
+)
 
 func PrintProgressBar(percentage int) {
 	barLength := 50

@@ -51,10 +51,11 @@ func main() {
 	// Handle configuration
 	if args[1] == "configure" {
 		if len(args) <= 2 {
-			fmt.Println("usage: dockvault configure <aws|azure>")
+			output.ConfigureUsage()
 			return
 		}
 		awsCmd := flag.NewFlagSet("aws", flag.ExitOnError)
+		awsCmd.Usage = output.AWSCmdUsage
 		var awsBucket string
 		awsCmd.StringVar(&awsBucket, "bucket", "", "name of the bucket")
 		awsCmd.StringVar(&awsBucket, "b", "", "name of the bucket")
@@ -64,6 +65,7 @@ func main() {
 
 		// az -a,--account -c,--container
 		azureCmd := flag.NewFlagSet("az", flag.ExitOnError)
+		azureCmd.Usage = output.AzureCmdUsage
 		var azureAccount string
 		azureCmd.StringVar(&azureAccount, "a", "", "azure storage account")
 		azureCmd.StringVar(&azureAccount, "account", "", "azure storage account")
@@ -106,7 +108,7 @@ func main() {
 				return
 			}
 		default:
-			fmt.Println("usage: dockvault configure <aws|azure>")
+			output.ConfigureUsage()
 		}
 		return
 	}
@@ -127,13 +129,14 @@ func main() {
 	switch args[1] {
 	case "upload":
 		uploadCmd := flag.NewFlagSet("upload", flag.ExitOnError)
+		uploadCmd.Usage = output.UploadCmdUsage
 		var blobName string
 		uploadCmd.StringVar(&blobName, "n", "", "name of the file to be saved")
 		uploadCmd.StringVar(&blobName, "name", "", "name of the file to saved")
 
 		uploadCmd.Parse(args[2:])
 		if len(uploadCmd.Args()) < 1 {
-			fmt.Println("usage: dockvault upload <image id | name:tag>")
+			uploadCmd.Usage()
 			return
 		}
 
@@ -145,9 +148,10 @@ func main() {
 		}
 	case "load":
 		loadCmd := flag.NewFlagSet("load", flag.ExitOnError)
+		loadCmd.Usage = output.LoadCmdUsage
 		loadCmd.Parse(args[2:])
 		if len(loadCmd.Args()) < 1 {
-			fmt.Println("usage: dockvault load <name of object in cloud storage>")
+			loadCmd.Usage()
 			return
 		}
 
