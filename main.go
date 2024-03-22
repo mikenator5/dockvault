@@ -47,8 +47,8 @@ func main() {
 		return
 	}
 
-	switch args[1] {
-	case "configure":
+	// Handle configuration
+	if args[1] == "configure" {
 		if len(args) <= 2 {
 			fmt.Println("usage: dockvault configure <aws|azure>")
 			return
@@ -107,7 +107,23 @@ func main() {
 		default:
 			fmt.Println("usage: dockvault configure <aws|azure>")
 		}
+		return
+	}
 
+	// Begin main program
+	cfg, err := helpers.GetConfig()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	strgClient, err := getClient(cfg)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+
+	switch args[1] {
 	case "upload":
 		uploadCmd := flag.NewFlagSet("upload", flag.ExitOnError)
 		var blobName string
@@ -122,34 +138,30 @@ func main() {
 
 		imageId := uploadCmd.Arg(0)
 
-		// Get config and do stuff
-		cfg, err := helpers.GetConfig()
-		if err != nil {
+		if err := strgClient.Upload(storage.UploadParams{ImageId: imageId, BlobName: blobName}); err != nil {
 			fmt.Println(err)
+			return
+		}
+	case "load":
+		loadCmd := flag.NewFlagSet("load", flag.ExitOnError)
+		loadCmd.Parse(args[2:])
+		if len(loadCmd.Args()) < 1 {
+			fmt.Println("usage: dockvault load <name of object in cloud storage>")
 			return
 		}
 
-		strg, err := getClient(cfg)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		if err := strg.Upload(storage.UploadParams{ImageId: imageId, BlobName: blobName}); err != nil {
-			fmt.Println(err)
-			return
-		}
+		blobName := loadCmd.Arg(0)
 
+		if err := strgClient.Load(storage.LoadParams{BlobName: blobName}); err != nil {
+			fmt.Println(err)
+			return
+		}
+	case "list":
+		if err := strgClient.List(); err != nil {
+			fmt.Println(err)
+			return
+		}
 	default:
 		fmt.Printf("Unknown subcommand '%s'\n", args[1])
 	}
-
-	// c, err := helpers.NewConfig()
-	// if err != nil {
-	// 	log.Fatalln("Config failed", err)
-	// }
-	// d, err := helpers.NewDocker()
-	// if err != nil {
-	// 	log.Fatal("Failed to start Docker... is it running?")
-	// }
-
 }
