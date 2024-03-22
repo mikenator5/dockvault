@@ -17,10 +17,17 @@ type Docker struct {
 func NewDocker() (Docker, error) {
 	d := Docker{}
 	d.ctx = context.Background()
-	var err error
-	if d.cli, err = client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation()); err != nil {
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
 		return Docker{}, err
 	}
+
+	if _, err = cli.Info(d.ctx); err != nil {
+		return Docker{}, err
+	}
+	d.cli = cli
+
 	return d, nil
 }
 
