@@ -4,18 +4,12 @@ DockVault is a tool for storing Docker images in cloud storage. It supports AWS 
 
 ## Installation
 
-Install directly from git:
-
-```bash
-go install https://github.com/mikenator5/dockvault.git
-```
-
-Or alternatively, clone the repository and build the binary:
+Clone the repository and build the binary:
 
 ```bash
 git clone https://github.com/mikenator5/dockvault.git
 cd dockvault
-go build
+go install .
 ```
 
 ## Usage
