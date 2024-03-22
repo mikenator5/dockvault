@@ -11,12 +11,16 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 )
 
+// Azure represents the Azure storage implementation.
 type Azure struct {
 	cfg        helpers.Config
 	d          helpers.Docker
 	blobClient *azblob.Client
 }
 
+// NewAzureWithAD creates a new Azure storage instance with Active Directory authentication.
+// It takes a configuration object `cfg` and a Docker helper object `d` as parameters.
+// It returns an instance of the Azure struct and an error, if any.
 func NewAzureWithAD(cfg helpers.Config, d helpers.Docker) (Azure, error) {
 	cred, err := azidentity.NewDefaultAzureCredential(nil)
 	if err != nil {
@@ -32,6 +36,9 @@ func NewAzureWithAD(cfg helpers.Config, d helpers.Docker) (Azure, error) {
 	return Azure{cfg: cfg, d: d, blobClient: client}, nil
 }
 
+// Upload uploads the image specified by the given UploadParams to Azure Blob Storage.
+// It compresses the image, assigns a BlobName if not provided, and uploads the compressed image to the specified container.
+// The method returns an error if any error occurs during the upload process.
 func (az Azure) Upload(params UploadParams) error {
 	compressedImg, err := az.d.SaveImageInMemory(params.ImageId)
 	if err != nil {
@@ -60,6 +67,8 @@ func (az Azure) Upload(params UploadParams) error {
 	return nil
 }
 
+// List retrieves a list of blobs from the Azure storage container.
+// It returns an error if there was a problem listing the blobs.
 func (az Azure) List() error {
 	pager := az.blobClient.NewListBlobsFlatPager(az.cfg.Azure.Container, nil)
 	blobCount := 0
@@ -82,6 +91,7 @@ func (az Azure) List() error {
 	return nil
 }
 
+// Load downloads a blob from Azure storage and loads it into the storage.
 func (az Azure) Load(params LoadParams) error {
 	fmt.Printf("Downloading %s\n", params.BlobName)
 	get, err := az.blobClient.DownloadStream(context.TODO(), az.cfg.Azure.Container, params.BlobName, nil)

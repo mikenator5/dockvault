@@ -12,6 +12,11 @@ import (
 	"os"
 )
 
+// getClient returns a storage client based on the provided configuration.
+// It creates a Docker client and initializes the appropriate storage client based on the configuration.
+// If the configuration specifies AWS, it creates an S3 storage client.
+// If the configuration specifies Azure, it creates an Azure storage client with Active Directory authentication.
+// If the configuration does not match any supported storage options, it returns an error.
 func getClient(cfg helpers.Config) (storage.Storage, error) {
 	d, err := helpers.NewDocker()
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"fmt"
 )
 
+// PrintUsage prints the usage information for the dockvault tool.
 func PrintUsage() {
 	fmt.Println(`dockvault: A tool used for managing Docker images in cloud storage.
 Usage:
@@ -17,6 +18,7 @@ Commands:
 	`)
 }
 
+// ConfigureUsage prints the usage information for the dockvault configure command.
 func ConfigureUsage() {
 	w := flag.CommandLine.Output()
 
@@ -26,6 +28,7 @@ func ConfigureUsage() {
 `)
 }
 
+// AWSCmdUsage prints the usage information for the "dockvault configure aws" command.
 func AWSCmdUsage() {
 	w := flag.CommandLine.Output()
 	fmt.Fprintf(w, `usage of dockvault configure aws:
@@ -37,6 +40,7 @@ dockvault configure aws --bucket mybucket --region us-west-2
 `)
 }
 
+// AzureCmdUsage prints the usage information for the dockvault configure az command.
 func AzureCmdUsage() {
 	w := flag.CommandLine.Output()
 	fmt.Fprintf(w, `usage of dockvault configure az:
@@ -48,6 +52,7 @@ func AzureCmdUsage() {
 `)
 }
 
+// UploadCmdUsage prints the usage information for the "dockvault upload" command.
 func UploadCmdUsage() {
 	w := flag.CommandLine.Output()
 	fmt.Fprintf(w, `usage: dockvault upload <image id | name:tag>
@@ -58,6 +63,7 @@ func UploadCmdUsage() {
 `)
 }
 
+// LoadCmdUsage prints the usage information for the "dockvault load" command.
 func LoadCmdUsage() {
 	w := flag.CommandLine.Output()
 	fmt.Fprintf(w, `usage: dockvault load <name of object in cloud>
