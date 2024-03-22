@@ -2,9 +2,15 @@ package helpers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+)
+
+const (
+	homeDirName = ".dockvault"
+	configName  = "config.json"
 )
 
 type Config struct {
@@ -51,7 +57,7 @@ func writeConfig(cfg Config, filePath string) error {
 }
 
 func updateConfig(cfg Config) error {
-	filePath := filepath.Join(os.Getenv("HOME"), ".dockvault", "config.json")
+	filePath := filepath.Join(os.Getenv("HOME"), homeDirName, configName)
 
 	_, err := os.Stat(filePath)
 	if err == nil {
@@ -95,4 +101,25 @@ func NewAzureConfig(az *Azure) error {
 		Azure: az,
 	}
 	return updateConfig(cfg)
+}
+
+func GetConfig() (Config, error) {
+	filePath := filepath.Join(os.Getenv("HOME"), homeDirName, configName)
+
+	_, err := os.Stat(filePath)
+	if err == nil {
+		// File exists
+		cData, err := os.ReadFile(filePath)
+		if err != nil {
+			return Config{}, err
+		}
+
+		c := Config{}
+		if err = json.Unmarshal(cData, &c); err != nil {
+			return Config{}, err
+		}
+		return c, nil
+	}
+
+	return Config{}, errors.New("Config file was not found. Create one with: dockvault configure")
 }

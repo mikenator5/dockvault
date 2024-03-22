@@ -29,12 +29,12 @@ func NewS3(cfg helpers.Config, d helpers.Docker) (S3, error) {
 	return S3{cfg: cfg, d: d, s3Client: client}, nil
 }
 
-func (s *S3) Upload(params UploadParams) error {
-	fmt.Printf("Uploading %s\n", params.ImageId)
+func (s S3) Upload(params UploadParams) error {
 	compressedImg, err := s.d.SaveImageInMemory(params.ImageId)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Uploading %s\n", params.ImageId)
 
 	if len(params.BlobName) == 0 {
 		params.BlobName = params.ImageId
@@ -54,7 +54,7 @@ func (s *S3) Upload(params UploadParams) error {
 	return nil
 }
 
-func (s *S3) List() error {
+func (s S3) List() error {
 	output, err := s.s3Client.ListObjectsV2(context.TODO(), &s3.ListObjectsV2Input{
 		Bucket: aws.String(s.cfg.AWS.Bucket),
 	})
@@ -72,7 +72,7 @@ func (s *S3) List() error {
 	return nil
 }
 
-func (s *S3) Load(params LoadParams) error {
+func (s S3) Load(params LoadParams) error {
 	fmt.Println("Downloading " + params.BlobName)
 	headObj, err := s.s3Client.HeadObject(context.TODO(), &s3.HeadObjectInput{
 		Bucket: aws.String(s.cfg.AWS.Bucket),

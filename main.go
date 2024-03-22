@@ -3,10 +3,41 @@ package main
 import (
 	"dockVault/helpers"
 	"dockVault/internal/pkg/output"
+	"dockVault/storage"
+	"errors"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 )
+
+func getClient(cfg helpers.Config) (storage.Storage, error) {
+	d, err := helpers.NewDocker()
+	if err != nil {
+		log.Fatal("Failed to start Docker... is it running?")
+		return nil, err
+	}
+
+	if cfg.AWS != nil {
+		s3, err := storage.NewS3(cfg, d)
+		if err != nil {
+			log.Fatalln("Failed to create s3 connection")
+			return nil, err
+		}
+
+		return s3, nil
+	} else if cfg.Azure != nil {
+		az, err := storage.NewAzureWithAD(cfg, d)
+		if err != nil {
+			log.Fatalln("Failed to create azure connection")
+			return nil, err
+		}
+
+		return az, nil
+	}
+
+	return nil, errors.New("failed to create client")
+}
 
 func main() {
 
@@ -33,8 +64,8 @@ func main() {
 		// az -a,--account -c,--container
 		azureCmd := flag.NewFlagSet("az", flag.ExitOnError)
 		var azureAccount string
-		azureCmd.StringVar(&azureAccount, "a", "", "azure account")
-		azureCmd.StringVar(&azureAccount, "account", "", "azure account")
+		azureCmd.StringVar(&azureAccount, "a", "", "azure storage account")
+		azureCmd.StringVar(&azureAccount, "account", "", "azure storage account")
 		var azureContainer string
 		azureCmd.StringVar(&azureContainer, "c", "", "azure blob container")
 		azureCmd.StringVar(&azureContainer, "container", "", "azure blob container")
@@ -65,8 +96,8 @@ func main() {
 			}
 
 			az := helpers.Azure{
-				Account:   azureAccount,
-				Container: azureContainer,
+				StorageAccount: azureAccount,
+				Container:      azureContainer,
 			}
 
 			if err := helpers.NewAzureConfig(&az); err != nil {
@@ -79,7 +110,35 @@ func main() {
 
 	case "upload":
 		uploadCmd := flag.NewFlagSet("upload", flag.ExitOnError)
-		uploadCmd.Parse(args[1:])
+		var blobName string
+		uploadCmd.StringVar(&blobName, "n", "", "name of the file to be saved")
+		uploadCmd.StringVar(&blobName, "name", "", "name of the file to saved")
+
+		uploadCmd.Parse(args[2:])
+		if len(uploadCmd.Args()) < 1 {
+			fmt.Println("usage: dockvault upload <image id | name:tag>")
+			return
+		}
+
+		imageId := uploadCmd.Arg(0)
+
+		// Get config and do stuff
+		cfg, err := helpers.GetConfig()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+
+		strg, err := getClient(cfg)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		if err := strg.Upload(storage.UploadParams{ImageId: imageId, BlobName: blobName}); err != nil {
+			fmt.Println(err)
+			return
+		}
+
 	default:
 		fmt.Printf("Unknown subcommand '%s'\n", args[1])
 	}

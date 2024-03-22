@@ -32,12 +32,12 @@ func NewAzureWithAD(cfg helpers.Config, d helpers.Docker) (Azure, error) {
 	return Azure{cfg: cfg, d: d, blobClient: client}, nil
 }
 
-func (az *Azure) Upload(params UploadParams) error {
-	fmt.Printf("Uploading %s\n", params.ImageId)
+func (az Azure) Upload(params UploadParams) error {
 	compressedImg, err := az.d.SaveImageInMemory(params.ImageId)
 	if err != nil {
 		return err
 	}
+	fmt.Printf("Uploading %s\n", params.ImageId)
 
 	if len(params.BlobName) == 0 {
 		params.BlobName = params.ImageId
@@ -60,7 +60,7 @@ func (az *Azure) Upload(params UploadParams) error {
 	return nil
 }
 
-func (az *Azure) List() error {
+func (az Azure) List() error {
 	pager := az.blobClient.NewListBlobsFlatPager(az.cfg.Azure.Container, nil)
 	blobCount := 0
 	for pager.More() {
@@ -82,7 +82,7 @@ func (az *Azure) List() error {
 	return nil
 }
 
-func (az *Azure) Load(params LoadParams) error {
+func (az Azure) Load(params LoadParams) error {
 	fmt.Printf("Downloading %s\n", params.BlobName)
 	get, err := az.blobClient.DownloadStream(context.TODO(), az.cfg.Azure.Container, params.BlobName, nil)
 	if err != nil {
