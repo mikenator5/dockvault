@@ -3,8 +3,8 @@ package storage
 import (
 	"bytes"
 	"context"
-	"dockVault/helpers"
-	"dockVault/output"
+	"dockvault/helpers"
+	"dockvault/output"
 	"fmt"
 
 	"github.com/Azure/azure-sdk-for-go/sdk/azidentity"

@@ -3,7 +3,7 @@ package storage
 import (
 	"bytes"
 	"context"
-	"dockVault/helpers"
+	"dockvault/helpers"
 	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"

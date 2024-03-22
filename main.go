@@ -1,9 +1,9 @@
 package main
 
 import (
-	"dockVault/helpers"
-	"dockVault/output"
-	"dockVault/storage"
+	"dockvault/helpers"
+	"dockvault/output"
+	"dockvault/storage"
 
 	"errors"
 	"flag"
