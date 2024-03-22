@@ -24,7 +24,7 @@ func ConfigureUsage() {
 
 	fmt.Fprintf(w, `usage of dockvault configure:
     aws      configure dockvault for aws s3 storage
-    azure    configure dockvault for azure blob storage
+    az    configure dockvault for azure blob storage
 `)
 }
 
