@@ -65,16 +65,16 @@ func (s *S3) List() error {
 	if len(output.Contents) < 1 {
 		fmt.Printf("No objects found in bucket \"%s\"\n", s.cfg.AWS.Bucket)
 	}
+
 	for _, object := range output.Contents {
-		fmt.Printf("key=%s size=%d", aws.ToString(object.Key), object.Size)
+		fmt.Printf("key=%s size=%d\n", aws.ToString(object.Key), object.Size)
 	}
 	return nil
 }
 
 func (s *S3) Load(params LoadParams) error {
 	fmt.Println("Downloading " + params.BlobName)
-
-	result, err := s.s3Client.GetObject(context.TODO(), &s3.GetObjectInput{
+	headObj, err := s.s3Client.HeadObject(context.TODO(), &s3.HeadObjectInput{
 		Bucket: aws.String(s.cfg.AWS.Bucket),
 		Key:    aws.String(params.BlobName),
 	})
@@ -83,7 +83,7 @@ func (s *S3) Load(params LoadParams) error {
 	}
 
 	downloader := manager.NewDownloader(s.s3Client)
-	data := make([]byte, int(*result.ContentLength))
+	data := make([]byte, int(*headObj.ContentLength))
 	w := manager.NewWriteAtBuffer(data)
 
 	_, err = downloader.Download(context.TODO(), w, &s3.GetObjectInput{
@@ -95,6 +95,7 @@ func (s *S3) Load(params LoadParams) error {
 	}
 
 	buffer := bytes.NewBuffer(data)
+	fmt.Println("Successfully downloaded. Loading image...")
 	err = s.d.LoadImageFromBuffer(buffer)
 	if err != nil {
 		return err
